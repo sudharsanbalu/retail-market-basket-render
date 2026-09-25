@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex align-center justify-between wrap gap-2 mb-3 fade-up">
+  <div>
+    <h2 style="font-size:20px;font-weight:800"><i class="bi bi-graph-up-arrow text-primary"></i> Sales Analytics</h2>
+    <div class="text-muted text-small">Real metrics computed from the loaded dataset · charts update instantly</div>
+  </div>
+  <div class="d-flex align-center gap-2 wrap">
+    <div class="seg-control" id="dateFilter">
+      <button data-range="all" class="active">All</button>
+      <button data-range="today">Today</button>
+      <button data-range="last_7">Last 7 Days</button>
+      <button data-range="last_30">Last 30 Days</button>
+      <button data-range="this_month">This Month</button>
+      <button data-range="custom">Custom</button>
+    </div>
+    <div id="customRange" style="display:none" class="d-flex align-center gap-2">
+      <input type="date" id="startDate" class="form-control" style="width:150px">
+      <span class="text-muted">→</span>
+      <input type="date" id="endDate" class="form-control" style="width:150px">
+    </div>
+  </div>
+</div>
+
+<!-- metric cards -->
+<div class="kpi-grid" id="salesMetrics"></div>
+
+<!-- empty state -->
+<div class="card" id="analyticsEmpty" style="display:none">
+  <div class="card-body"><div class="empty-state">
+    <div class="empty-icon">📊</div>
+    <h3 id="emptyTitle">No sales data available</h3>
+    <p id="emptyDesc">Upload a retail dataset to analyse daily and monthly sales patterns.</p>
+    <button id="emptyBtn" class="btn btn-primary" onclick="window.location.href='/upload'"><i class="bi bi-cloud-arrow-up"></i> Upload Dataset</button>
+  </div></div>
+</div>
+
+<div id="analyticsBody" class="dash-grid">
+  <div class="card g-6">
+    <div class="card-header"><div><h3>Daily Sales</h3><div class="card-sub">Revenue per day</div></div></div>
+    <div class="card-body"><div class="chart-box" style="height:280px"><canvas id="dailyChart"></canvas><div class="skeleton-card chart-skeleton"></div></div></div>
+  </div>
+  <div class="card g-6">
+    <div class="card-header"><div><h3>Monthly Sales</h3><div class="card-sub">Revenue per month</div></div></div>
+    <div class="card-body"><div class="chart-box" style="height:280px"><canvas id="monthlyChart"></canvas><div class="skeleton-card chart-skeleton"></div></div></div>
+  </div>
+  <div class="card g-7">
+    <div class="card-header"><div><h3>Top 10 Products by Revenue</h3></div></div>
+    <div class="card-body"><div class="chart-box" style="height:320px"><canvas id="top10Chart"></canvas><div class="skeleton-card chart-skeleton"></div></div></div>
+  </div>
+  <div class="card g-5">
+    <div class="card-header"><div><h3>Revenue by Category</h3><div class="card-sub">Click a slice to filter products</div></div></div>
+    <div class="card-body"><div class="chart-box" style="height:320px"><canvas id="categoryDoughnutChart"></canvas><div class="skeleton-card chart-skeleton"></div></div></div>
+  </div>
+  <div class="card g-6">
+    <div class="card-header"><div><h3>Category-wise Sales</h3><div class="card-sub">Items sold per category</div></div></div>
+    <div class="card-body"><div class="chart-box" style="height:300px"><canvas id="categoryBarChart"></canvas><div class="skeleton-card chart-skeleton"></div></div></div>
+  </div>
+  <div class="card g-6">
+    <div class="card-header"><div><h3>Quantity by Product (Top 10)</h3></div></div>
+    <div class="card-body"><div class="chart-box" style="height:300px"><canvas id="qtyChart"></canvas><div class="skeleton-card chart-skeleton"></div></div></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ static_v('js/analytics.js') }}"></script>
+{% endblock %}

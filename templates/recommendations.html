@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="fade-up">
+  <div class="hero" style="background:linear-gradient(135deg,#0ea5e9,#6d5dfc)">
+    <div class="hero-orb o1"></div><div class="hero-orb o2"></div><div class="hero-orb o3"></div>
+    <div class="hero-content">
+      <div class="d-flex align-center gap-2 mb-1"><i class="bi bi-lightbulb-fill"></i><span class="badge badge-white">Uses real association rules</span></div>
+      <h2>Product Recommendation Engine</h2>
+      <p>Pick any product and instantly see what customers genuinely purchase alongside it — powered by the confidence and lift of your mined association rules, never random guesses.</p>
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-header">
+      <div><h3><i class="bi bi-grid-3x3-gap-fill text-primary"></i> Choose a product</h3>
+      <div class="card-sub">Recommended products are derived from rules where your selection appears</div></div>
+      <span class="badge badge-primary" id="recCount"></span>
+    </div>
+    <div class="card-body">
+      <div class="prod-chooser stagger" id="productChooser">
+        <div class="skeleton skeleton-line"></div>
+        <div class="skeleton skeleton-line"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="recResults"></div>
+
+  <div id="recEmpty" class="card" style="display:none">
+    <div class="card-body"><div class="empty-state">
+      <div class="empty-icon">🛍️</div>
+      <h3>Select a product to begin</h3>
+      <p>Recommendations are generated from association rules mined from your dataset with Minimum Support, Confidence and Lift thresholds.</p>
+    </div></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ static_v('js/recommendations.js') }}"></script>
+{% endblock %}

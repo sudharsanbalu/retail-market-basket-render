@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="fade-up">
+  <div class="hero" style="background:linear-gradient(135deg,#0f172a,#6d5dfc)">
+    <div class="hero-orb o1"></div><div class="hero-orb o2"></div><div class="hero-orb o3"></div>
+    <div class="hero-content">
+      <h2>About This Project</h2>
+      <p>A college-level data analytics &amp; machine-learning project that discovers products purchased together using association rule mining — and turns those patterns into product recommendations and smart combo offers.</p>
+      <div class="hero-badges">
+        <span class="badge badge-white"><i class="bi bi-diagram-3"></i> BCA Project</span>
+        <span class="badge badge-white"><i class="bi bi-graph-up-arrow"></i> Data Analytics</span>
+        <span class="badge badge-white"><i class="bi bi-cpu"></i> Machine Learning</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="dash-grid">
+    <!-- objective -->
+    <div class="card g-5">
+      <div class="card-header"><div><h3><i class="bi bi-bullseye text-primary"></i> Objective</h3></div></div>
+      <div class="card-body">
+        <p class="text-muted">To analyze retail transaction data and discover hidden relationships between products using <strong>association rule mining</strong>, then use those relationships to recommend products and build smart promotional combos.</p>
+        <div class="divider"></div>
+        <div class="insight-list">
+          <div class="insight-item"><i class="bi bi-1-circle-fill bulb"></i><span><strong>Input</strong> — retail transactions (CSV / Excel)</span></div>
+          <div class="insight-item"><i class="bi bi-2-circle-fill bulb"></i><span><strong>Process</strong> — Apriori / FP-Growth finds frequent itemsets &amp; association rules</span></div>
+          <div class="insight-item"><i class="bi bi-3-circle-fill bulb"></i><span><strong>Output</strong> — rules (support · confidence · lift), recommendations &amp; combos</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- technologies -->
+    <div class="card g-7">
+      <div class="card-header"><div><h3><i class="bi bi-stack text-primary"></i> Technologies Used</h3></div></div>
+      <div class="card-body">
+        <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px">
+          ${["Python","Flask","Pandas","MLxtend","SQLite","Chart.js","HTML5","CSS3","JavaScript","NumPy","scikit-learn"].map(t =>
+            `<div class="stat-tile" style="padding:14px 8px"><div>
+              <i class="bi ${({ "Python":"bi-filetype-py","Flask":"bi-flask","Pandas":"bi-table","MLxtend":"bi-diagram-2","SQLite":"bi-database","Chart.js":"bi-bar-chart","HTML5":"bi-filetype-html","CSS3":"bi-filetype-css","JavaScript":"bi-filetype-js","NumPy":"bi-calculator","scikit-learn":"bi-cpu" }[t] || "bi-box-seam")}" style="font-size:20px;color:var(--primary)"></i>
+            </div><div class="st-label" style="margin-top:6px">${t}</div></div>`).join("")}
+        </div>
+        <div class="alert alert-info mt-3"><i class="bi bi-gear-fill"></i><div><strong>Why these?</strong> Fl asks is lightweight and beginner-friendly; MLxtend implements Apriori &amp; FP-Growth out of the box; SQLite needs zero configuration on Windows.</div></div>
+      </div>
+    </div>
+
+    <!-- algorithms -->
+    <div class="card g-5">
+      <div class="card-header"><div><h3><i class="bi bi-diagram-3 text-primary"></i> Algorithms</h3></div></div>
+      <div class="card-body">
+        <div class="term-card mb-3">
+          <div class="product-emoji" style="position:absolute;left:0;top:0">📐</div>
+          <strong>Apriori</strong>
+          <p class="text-muted text-small mt-1">Breadth-first search that counts item frequencies and prunes itemsets that can never be frequent (downward closure).</p>
+        </div>
+        <div class="term-card mb-3">
+          <div class="product-emoji" style="position:absolute;left:0;top:0">⚡</div>
+          <strong>FP-Growth</strong>
+          <p class="text-muted text-small mt-1">Faster alternative that builds an FP-tree and mines frequent itemsets without candidate generation.</p>
+        </div>
+        <div class="term-card">
+          <div class="product-emoji" style="position:absolute;left:0;top:0">🔗</div>
+          <strong>Association Rule Mining</strong>
+          <p class="text-muted text-small mt-1">Finds rules of the form <code>Antecedent → Consequent</code> and rates them using Support, Confidence and Lift.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- terms -->
+    <div class="card g-7">
+      <div class="card-header">
+        <div><h3><i class="bi bi-book-fill text-primary"></i> Important Terms</h3><div class="card-sub">The three measures that drive every analysis in this app</div></div>
+      </div>
+      <div class="card-body">
+        <div class="grid-6">
+          <div class="stat-tile">
+            <div class="product-emoji" style="margin:0 auto">📊</div>
+            <div class="fw-700 mt-1">Support</div>
+            <p class="text-muted text-small mt-1" style="font-size:12px">How frequently an itemset appears in all transactions.</p>
+            <div class="formula">Support(A→B) = count(A∪B) ÷ total transactions</div>
+          </div>
+          <div class="stat-tile">
+            <div class="product-emoji" style="margin:0 auto">🎯</div>
+            <div class="fw-700 mt-1">Confidence</div>
+            <p class="text-muted text-small mt-1" style="font-size:12px">How often the consequent is bought when the antecedent is bought.</p>
+            <div class="formula">Confidence(A→B) = support(A∪B) ÷ support(A)</div>
+          </div>
+          <div class="stat-tile">
+            <div class="product-emoji" style="margin:0 auto">⚖️</div>
+            <div class="fw-700 mt-1">Lift</div>
+            <p class="text-muted text-small mt-1" style="font-size:12px">How much stronger the association is than pure random chance.</p>
+            <div class="formula">Lift(A→B) = confidence(A→B) ÷ support(B)</div>
+          </div>
+        </div>
+        <div class="mt-3 alert alert-success"><i class="bi bi-check-circle-fill"></i><div><strong>Rule of thumb:</strong> Lift &gt; 1 → positive association · Lift = 1 → independent · Lift &lt; 1 → negative association. This app only surfaces genuine (Lift ≥ 1) patterns.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script></script>
+{% endblock %}

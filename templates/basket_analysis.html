@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex align-center justify-between wrap gap-2 mb-3 fade-up">
+  <div>
+    <h2 style="font-size:20px;font-weight:800"><i class="bi bi-link-45deg text-primary"></i> Market Basket Analysis Lab</h2>
+    <div class="text-muted text-small">Apriori / FP-Growth frequent itemsets → association rules with real support, confidence &amp; lift</div>
+  </div>
+  <div class="d-flex align-center gap-2">
+    <div class="text-muted text-small" id="lastRunLabel"></div>
+    <button class="btn btn-ghost btn-sm" data-action="openBasketHelp"><i class="bi bi-question-circle"></i> How it works</button>
+  </div>
+</div>
+
+<div class="grid" style="grid-template-columns: 300px 1fr; align-items:start" id="basketLayout">
+  <!-- ============ CONTROL PANEL ============ -->
+  <div class="control-panel fade-up" id="controlPanel">
+    <h4><i class="bi bi-sliders text-primary"></i> Analysis Settings</h4>
+    <div class="sub-text">Tune the thresholds that decide which patterns count as interesting.</div>
+
+    <div class="form-group">
+      <div class="form-label"><span>Minimum Support</span><span class="range-value" id="suppVal">0.01</span></div>
+      <div class="range-wrap"><input type="range" id="minSupport" min="0.005" max="0.10" step="0.005" value="0.01"></div>
+      <div class="form-hint">Fraction of transactions an itemset must appear in.</div>
+    </div>
+
+    <div class="form-group">
+      <div class="form-label"><span>Minimum Confidence</span><span class="range-value" id="confVal">0.30</span></div>
+      <div class="range-wrap"><input type="range" id="minConfidence" min="0.10" max="0.90" step="0.05" value="0.30"></div>
+      <div class="form-hint">How often the consequent appears with the antecedent.</div>
+    </div>
+
+    <div class="form-group">
+      <div class="form-label"><span>Minimum Lift</span><span class="range-value" id="liftVal">1.00</span></div>
+      <div class="range-wrap"><input type="range" id="minLift" min="1.0" max="3.0" step="0.05" value="1.0"></div>
+      <div class="form-hint">Lift &gt; 1 means a genuine, non-random association.</div>
+    </div>
+
+    <div class="form-group">
+      <div class="form-label"><span>Algorithm</span></div>
+      <select class="form-select" id="algorithm">
+        <option value="apriori">Apriori</option>
+        <option value="fpgrowth">FP-Growth</option>
+      </select>
+    </div>
+
+    <button class="btn btn-primary btn-lg btn-block" id="runAnalysisBtn2">
+      <i class="bi bi-play-fill"></i> Run Analysis
+    </button>
+
+    <!-- analysis progress (animated) -->
+    <div id="analysisProgress" style="display:none" class="mt-3">
+      <div class="text-small fw-700 mb-1" id="progressTitle">Analyzing your dataset</div>
+      <div class="progress mb-2"><div class="bar" id="analysisBar"></div></div>
+      <div id="analysisSteps"></div>
+    </div>
+
+    <div class="mt-3">
+      <button class="btn btn-ghost btn-sm btn-block" onclick="window.location.href='/basket-analysis'" disabled>
+        <i class="bi bi-lightning-charge"></i> Auto default settings
+      </button>
+    </div>
+  </div>
+
+  <!-- ============ RESULTS ============ -->
+  <div>
+    <div id="basketEmpty" class="card">
+      <div class="card-body"><div class="empty-state">
+        <div class="empty-icon">🔗</div>
+        <h3>Discover hidden purchase patterns</h3>
+        <p>Upload a dataset (or load the sample), then press <strong>Run Analysis</strong> to find frequent itemsets and association rules.</p>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="window.location.href='/upload'"><i class="bi bi-cloud-arrow-up"></i> Upload Dataset</button>
+        </div>
+      </div></div>
+    </div>
+
+    <div id="basketError" class="card" style="display:none">
+      <div class="card-body"><div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <div>
+          <strong id="basketErrorTitle">No association rules found.</strong>
+          <div id="basketErrorMsg">Try lowering Minimum Support or Confidence on the left, then run again.</div>
+        </div>
+      </div>
+        <div class="d-flex gap-2 mt-3">
+          <button class="btn btn-ghost btn-sm" onclick="applyRelaxedSettings()"><i class="bi bi-sliders"></i> Suggest relaxed settings</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="basketResults" style="display:none">
+      <!-- stats -->
+      <div class="grid grid-6 mb-3" id="basketStats"></div>
+
+      <!-- insights -->
+      <div class="card mb-3">
+        <div class="card-header"><div><h3>Insights from this run</h3><span class="badge badge-accent"><i class="bi bi-stars"></i> computed</span></div></div>
+        <div class="card-body" id="basketInsights"></div>
+      </div>
+
+      <div class="dash-grid mb-3">
+        <!-- scatter -->
+        <div class="card g-6">
+          <div class="card-header"><div><h3>Support vs Confidence</h3><div class="card-sub">Bubble size = Lift</div></div></div>
+          <div class="card-body"><div class="chart-box" style="height:320px"><canvas id="scatterChart"></canvas></div></div>
+        </div>
+        <!-- network -->
+        <div class="card g-6">
+          <div class="card-header">
+            <div><h3>Product Relationship Network</h3><div class="card-sub">Drag nodes · scroll to zoom · click a product</div></div>
+            <div class="d-flex align-center gap-2">
+              <label class="text-small text-muted" for="netLiftFilter">Min lift
+                <input type="range" id="netLiftFilter" min="1" max="8" step="0.1" value="1.5" style="width:90px;display:inline-block;vertical-align:middle">
+              </label>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="network-wrap" id="networkWrap">
+              <svg class="network-canvas" id="networkSvg" role="img" aria-label="Association rule network"></svg>
+              <div class="network-tooltip" id="netTooltip"></div>
+              <div class="network-hint"><i class="bi bi-mouse"></i> drag nodes · <i class="bi bi-zoom-in"></i> zoom · click for details</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- rule cards -->
+      <div class="d-flex align-center justify-between mb-2 mt-4">
+        <h3 style="font-size:16px;font-weight:800"><i class="bi bi-grid-3x3-gap-fill text-primary"></i> Association Rule Cards</h3>
+        <div class="seg-control" id="ruleSort">
+          <button data-sort="lift" class="active"><i class="bi bi-activity"></i> Lift</button>
+          <button data-sort="confidence">Confidence</button>
+          <button data-sort="support">Support</button>
+        </div>
+      </div>
+      <div class="grid-4 mb-4" id="ruleCards" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr))"></div>
+
+      <!-- itemsets table -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <div><h3><i class="bi bi-layers-fill text-primary"></i> Frequent Itemsets</h3><div class="card-sub">Item combinations that pass the minimum support</div></div>
+          <span class="badge badge-primary" id="itemsetCount"></span>
+        </div>
+        <div class="card-body">
+          <div class="table-wrap" style="max-height:380px;overflow-y:auto">
+            <table class="table" id="itemsetsTable">
+              <thead><tr><th>#</th><th>Itemset</th><th class="num">Size</th><th class="num">Support</th><th class="num">Transactions</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- rules table -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <div><h3><i class="bi bi-table text-primary"></i> Full Association Rules</h3><div class="card-sub">Click any column header to sort</div></div>
+          <span class="badge badge-primary" id="ruleCount"></span>
+        </div>
+        <div class="card-body">
+          <div class="d-flex align-center justify-between wrap gap-2 mb-2">
+            <div class="search-box" style="width:250px"><i class="bi bi-search"></i>
+              <input type="text" id="rulesSearch" placeholder="Filter rules… (e.g. milk)"></div>
+            <div class="d-flex align-center gap-2"><span class="text-muted text-small">Showing</span>
+              <select class="form-select" id="rulesLimit" style="width:90px">
+                <option>25</option><option selected>50</option><option>100</option><option>All</option>
+              </select></div>
+          </div>
+          <div class="table-wrap" style="max-height:480px;overflow-y:auto">
+            <table class="table" id="rulesTable">
+              <thead><tr>
+                <th>Antecedent</th><th></th><th>Consequent</th>
+                <th class="num sortable" data-s="support">Support</th>
+                <th class="num sortable" data-s="confidence">Confidence</th>
+                <th class="num sortable" data-s="lift">Lift</th>
+                <th class="num">Txns</th>
+              </tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ static_v('js/basket.js') }}"></script>
+{% endblock %}

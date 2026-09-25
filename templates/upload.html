@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="grid grid-2" style="grid-template-columns: 1.4fr 1fr; align-items:start">
+  <!-- LEFT: upload -->
+  <div class="card fade-up">
+    <div class="card-header">
+      <div>
+        <h3><i class="bi bi-cloud-arrow-up-fill text-primary"></i> Upload Retail Dataset</h3>
+        <div class="card-sub">CSV or Excel · gets validated, cleaned and stored in SQLite</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="dropzone" id="dropzone" role="button" aria-label="Upload dataset">
+        <div class="dz-icon"><i class="bi bi-cloud-arrow-up-fill"></i></div>
+        <h3>Drop your retail dataset here</h3>
+        <p>or click to browse files</p>
+        <small><i class="bi bi-filetype-csv"></i> CSV · <i class="bi bi-file-earmark-excel"></i> XLSX (max 50 MB)</small>
+        <input type="file" id="fileInput" accept=".csv,.xlsx,.xls">
+      </div>
+
+      <div id="uploadProgress" style="display:none" class="mt-3">
+        <div class="d-flex align-center justify-between mb-1">
+          <span class="text-small fw-700">Uploading &amp; processing…</span>
+          <span class="text-small text-muted" id="uploadPct">0%</span>
+        </div>
+        <div class="progress"><div class="bar" id="uploadBar" style="width:0%"></div></div>
+      </div>
+
+      <div id="uploadChecks" style="display:none" class="mt-3"></div>
+
+      <div class="mt-3 d-flex gap-2 wrap" id="uploadBtns">
+        <button class="btn btn-primary" id="sampleBtn"><i class="bi bi-file-earmark-arrow-down"></i> Download Sample Dataset</button>
+        <button class="btn btn-outline" id="loadSampleIntoAppBtn"><i class="bi bi-box-arrow-in-down"></i> Load Sample into App</button>
+      </div>
+
+      <div class="alert alert-info mt-3" style="margin-top:18px">
+        <i class="bi bi-info-circle-fill"></i>
+        <div>
+          <strong>Expected columns</strong> (flexible column names are auto-detected):
+          <code>TransactionID, CustomerID, Date, Product, Quantity, Price, Category</code>
+          <ul>
+            <li>Quantity &amp; price must be numbers — invalid values are removed.</li>
+            <li>Missing categories are filled with “Other”.</li>
+            <li>Duplicate rows are dropped. Total amount = quantity × price.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: current dataset status -->
+  <div class="card fade-up">
+    <div class="card-header">
+      <div>
+        <h3><i class="bi bi-database-fill text-primary"></i> Loaded Dataset</h3>
+        <div class="card-sub">Analytics are computed from this data</div>
+      </div>
+    </div>
+    <div class="card-body" id="datasetInfoBox">
+      <div class="skeleton-card"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line short"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ RESULT SUMMARY ============ -->
+<div id="resultCard" style="display:none" class="mt-4">
+  <div class="card fade-up">
+    <div class="card-header">
+      <div>
+        <h3><i class="bi bi-check-circle-fill text-success"></i> Dataset Processed</h3>
+        <div class="card-sub">Preprocessing summary</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="window.location.href='/basket-analysis'"><i class="bi bi-link-45deg"></i> Start Basket Analysis</button>
+    </div>
+    <div class="card-body">
+      <div class="grid grid-6" id="summaryTiles"></div>
+
+      <div class="mt-3" id="qualityChecks"></div>
+
+      <h4 class="mt-3 fw-700" style="margin-top:26px;display:flex;align-items:center;gap:8px">
+        <i class="bi bi-table"></i> Data Preview
+        <span class="badge badge-flat">latest 50 rows</span>
+      </h4>
+      <div class="d-flex align-center justify-between wrap gap-2 mt-2 mb-2">
+        <div class="search-box" style="width:220px">
+          <i class="bi bi-search"></i>
+          <input type="text" id="previewSearch" placeholder="Search preview…">
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="window.location.href='/analytics'"><i class="bi bi-graph-up-arrow"></i> Open Sales Analytics</button>
+      </div>
+      <div class="table-wrap" id="previewTable"></div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ static_v('js/upload.js') }}"></script>
+{% endblock %}

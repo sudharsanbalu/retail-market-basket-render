@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="fade-up">
+  <div class="d-flex align-center justify-between wrap gap-2 mb-3">
+    <div>
+      <h2 style="font-size:20px;font-weight:800"><i class="bi bi-box-seam-fill text-primary"></i> Product Explorer</h2>
+      <div class="text-muted text-small" id="prodCount">All products from your loaded dataset</div>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="window.location.href='/basket-analysis'"><i class="bi bi-link-45deg"></i> Find Associations</button>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-body">
+      <div class="d-flex align-center gap-2 wrap">
+        <div class="search-box" style="width:240px"><i class="bi bi-search"></i>
+          <input type="text" id="prodSearch" placeholder="Search products…"></div>
+        <select class="form-select" id="prodCategory" style="width:200px">
+          <option value="">All categories</option>
+        </select>
+        <select class="form-select" id="prodSort" style="width:200px">
+          <option value="revenue">Sort: Revenue</option>
+          <option value="quantity">Sort: Quantity</option>
+          <option value="transactions">Sort: Transactions</option>
+          <option value="name">Sort: Name (A–Z)</option>
+          <option value="price">Sort: Price</option>
+        </select>
+        <input type="hidden" id="prodOrder">
+        <span class="text-muted text-small ml-auto" id="prodPageInfo"></span>
+      </div>
+    </div>
+  </div>
+
+  <div id="prodGrid" class="grid-6"></div>
+  <div class="pagination" id="prodPagination"></div>
+
+  <div id="prodEmpty" class="card" style="display:none">
+    <div class="card-body"><div class="empty-state">
+      <div class="empty-icon">📦</div>
+      <h3>No products available</h3>
+      <p>Upload a retail dataset to explore products, popularity and revenue.</p>
+      <button class="btn btn-primary" onclick="window.location.href='/upload'"><i class="bi bi-cloud-arrow-up"></i> Upload Dataset</button>
+    </div></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ static_v('js/products.js') }}"></script>
+{% endblock %}

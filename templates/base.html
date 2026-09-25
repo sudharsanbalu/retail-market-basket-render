@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ title }} · {{ app_title }}</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛒</text></svg>">
+  <link rel="stylesheet" href="{{ static_v('vendor/bootstrap-icons/bootstrap-icons.css') }}">
+  <link rel="stylesheet" href="{{ static_v('css/style.css') }}">
+  <script>window.APP = { page: "{{ page }}", title: "{{ app_title }}" };</script>
+</head>
+<body data-page="{{ page }}">
+  <div class="side-mask" id="sideMask"></div>
+  <div class="app-shell">
+
+    <!-- ==================== SIDEBAR ==================== -->
+    <aside class="sidebar" id="sidebar">
+      <div class="side-brand">
+        <div class="brand-logo"><i class="bi bi-basket2-fill"></i></div>
+        <div class="brand-text">
+          <strong>Market Basket</strong>
+          <span>Retail Intelligence</span>
+        </div>
+      </div>
+
+      <nav class="side-nav">
+        <div class="nav-group-label">Main</div>
+
+        <a href="/dashboard" class="nav-item" data-nav="dashboard">
+          <i class="bi bi-grid-1x2-fill"></i><span>Dashboard</span>
+          <span class="nav-tooltip">Dashboard</span>
+        </a>
+        <a href="/upload" class="nav-item" data-nav="upload">
+          <i class="bi bi-cloud-arrow-up-fill"></i><span>Dataset Upload</span>
+          <span class="nav-tooltip">Dataset Upload</span>
+        </a>
+        <a href="/analytics" class="nav-item" data-nav="analytics">
+          <i class="bi bi-graph-up-arrow"></i><span>Sales Analytics</span>
+          <span class="nav-tooltip">Sales Analytics</span>
+        </a>
+
+        <div class="nav-group-label">Intelligence</div>
+
+        <a href="/basket-analysis" class="nav-item" data-nav="basket">
+          <i class="bi bi-link-45deg"></i><span>Market Basket</span>
+          <span class="nav-tooltip">Market Basket</span>
+        </a>
+        <a href="/recommendations" class="nav-item" data-nav="recommendations">
+          <i class="bi bi-lightbulb-fill"></i><span>Recommendations</span>
+          <span class="nav-tooltip">Recommendations</span>
+        </a>
+        <a href="/combos" class="nav-item" data-nav="combos">
+          <i class="bi bi-gift-fill"></i><span>Combo Generator</span>
+          <span class="nav-tooltip">Combo Generator</span>
+        </a>
+        <a href="/customers" class="nav-item" data-nav="customers">
+          <i class="bi bi-people-fill"></i><span>Customers</span>
+          <span class="nav-tooltip">Customers</span>
+        </a>
+
+        <div class="nav-group-label">Manage</div>
+
+        <a href="/products" class="nav-item" data-nav="products">
+          <i class="bi bi-box-seam-fill"></i><span>Products</span>
+          <span class="nav-tooltip">Products</span>
+        </a>
+        <a href="/reports" class="nav-item" data-nav="reports">
+          <i class="bi bi-file-earmark-text-fill"></i><span>Reports</span>
+          <span class="nav-tooltip">Reports</span>
+        </a>
+        <a href="/about" class="nav-item" data-nav="about">
+          <i class="bi bi-info-circle-fill"></i><span>About Project</span>
+          <span class="nav-tooltip">About Project</span>
+        </a>
+      </nav>
+
+      <div class="side-footer">
+        <button class="collapse-btn" id="sidebarToggle" title="Collapse sidebar">
+          <i class="bi bi-chevron-left"></i>
+        </button>
+        <div class="side-footer-text">
+          <strong>v1.0</strong> · Apriori + FP-Growth
+        </div>
+      </div>
+    </aside>
+
+    <!-- ==================== MAIN ==================== -->
+    <div class="main-wrap">
+      <header class="topbar">
+        <div class="topbar-title">
+          <button class="icon-btn" id="mobileMenuBtn" style="display:none">
+            <i class="bi bi-list"></i>
+          </button>
+          <div>
+            <h1>{{ title }}</h1>
+            <small class="crumb">Retail Intelligence · Market Basket Analytics</small>
+          </div>
+        </div>
+
+        <div class="top-actions">
+          <div class="global-search pos-relative" id="globalSearchWrap">
+            <i class="bi bi-search"></i>
+            <input type="text" id="globalSearchInput" placeholder="Search products, rules, customers…" autocomplete="off">
+            <span class="global-hint">Ctrl K</span>
+            <div class="search-results" id="globalSearchResults" style="display:none"></div>
+          </div>
+
+          <button class="icon-btn" data-nav="combos" title="Combos">
+            <i class="bi bi-gift"></i>
+          </button>
+          <button class="icon-btn" title="Notifications" onclick="toast('info','Notifications','You are all caught up.')">
+            <i class="bi bi-bell"></i>
+            <span class="notif-dot" style="display:none"></span>
+          </button>
+          <button class="icon-btn" id="themeToggle" title="Toggle theme" aria-label="Toggle dark / light theme">
+            <i class="bi bi-moon-stars" id="themeIcon"></i>
+          </button>
+          <button class="icon-btn present-mode-btn" id="presentBtn" title="Presentation mode">
+            <i class="bi bi-presentation"></i>
+          </button>
+          <button class="avatar-btn" title="Admin user" onclick="toast('info','Admin','Logged in as Project Admin')">A</button>
+        </div>
+      </header>
+
+      <main class="page-content">
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </div>
+
+  <!-- ==================== COMMAND PALETTE ==================== -->
+  <div class="cmd-backdrop" id="cmdBackdrop">
+    <div class="cmd-palette" role="dialog" aria-label="Command palette">
+      <div class="cmd-input-wrap">
+        <i class="bi bi-search"></i>
+        <input type="text" id="cmdInput" placeholder="Search anything…  (products, customers, rules, actions)" autocomplete="off">
+      </div>
+      <div class="cmd-list" id="cmdList"></div>
+      <div class="cmd-footer">
+        <span><span class="kbd">↑↓</span> navigate</span>
+        <span><span class="kbd">↵</span> select</span>
+        <span><span class="kbd">esc</span> close</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== TOASTS ==================== -->
+  <div class="toast-stack" id="toastStack" aria-live="polite"></div>
+
+  <!-- ==================== MODAL ==================== -->
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal" id="modalBox" role="dialog" aria-modal="true"></div>
+  </div>
+
+  <!-- ==================== DRAWER ==================== -->
+  <div class="drawer" id="drawer" role="dialog" aria-modal="true">
+    <div class="drawer-header" id="drawerHeader">
+      <h3 id="drawerTitle">Details</h3>
+      <button class="icon-btn" onclick="closeDrawer()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="drawer-body" id="drawerBody"></div>
+    <div class="drawer-footer" id="drawerFooter"></div>
+  </div>
+
+  <button class="to-top" id="toTop" title="Back to top"><i class="bi bi-arrow-up"></i></button>
+  <div class="drawer-backdrop" id="drawerBackdrop" style="position:fixed;inset:0;z-index:155;background:rgba(8,12,26,.5);backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .25s"></div>
+
+  <!-- Vendor + core app scripts -->
+  <script src="{{ static_v('vendor/chart.umd.min.js') }}"></script>
+  <script src="{{ static_v('js/app.js') }}"></script>
+  <script src="{{ static_v('js/charts.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

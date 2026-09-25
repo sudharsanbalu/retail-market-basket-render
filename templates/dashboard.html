@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- ============ HERO ============ -->
+<section class="hero fade-up">
+  <div class="hero-orb o1"></div><div class="hero-orb o2"></div><div class="hero-orb o3"></div>
+  <div class="hero-content">
+    <h2>Retail Intelligence</h2>
+    <p>Discover what your customers buy together. Upload your retail transactions and instantly surface purchase patterns, association rules, smart combos and product recommendations.</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <button class="btn btn-white btn-lg" onclick="window.location.href='/basket-analysis'">
+        <i class="bi bi-magic"></i> Explore Analytics
+      </button>
+      <button class="btn btn-ghost-white btn-lg" onclick="window.location.href='/upload'">
+        <i class="bi bi-cloud-arrow-up"></i> Upload Dataset
+      </button>
+    </div>
+    <div class="hero-badges">
+      <span class="badge badge-white"><i class="bi bi-link-45deg"></i> Apriori</span>
+      <span class="badge badge-white"><i class="bi bi-graph-up-arrow"></i> FP-Growth</span>
+      <span class="badge badge-white"><i class="bi bi-cpu"></i> MLxtend</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ KPI CARDS ============ -->
+<div id="kpiArea" class="kpi-grid stagger"></div>
+
+<!-- ============ QUICK ACTIONS ============ -->
+<div class="card mb-4 fade-up" style="display:none" id="quickActionsCard">
+  <div class="card-body">
+    <div class="d-flex align-center justify-between mb-2 wrap gap-2">
+      <div>
+        <strong style="font-size:15px"><i class="bi bi-lightning-charge-fill text-primary"></i> Quick Actions</strong>
+        <div class="text-muted text-small">Jump straight to the important workflow steps.</div>
+      </div>
+    </div>
+    <div class="qa-grid">
+      <button class="qa-btn" data-action="goUpload"><i class="bi bi-cloud-arrow-up-fill text-primary"></i> Upload Dataset</button>
+      <button class="qa-btn" data-action="goBasket"><i class="bi bi-link-45deg text-primary"></i> Run Analysis</button>
+      <button class="qa-btn" data-action="goRecs"><i class="bi bi-lightbulb-fill text-primary"></i> Recommendations</button>
+      <button class="qa-btn" data-action="goCombos"><i class="bi bi-gift-fill text-primary"></i> Generate Combos</button>
+      <button class="qa-btn" data-action="goProducts"><i class="bi bi-box-seam-fill text-primary"></i> Top Products</button>
+      <button class="qa-btn" data-action="goReport"><i class="bi bi-file-earmark-text-fill text-primary"></i> Generate Report</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ WIDGETS GRID ============ -->
+<div class="d-flex align-center justify-between mb-3 wrap gap-2">
+  <div class="d-flex align-center gap-2">
+    <h3 style="font-size:18px;font-weight:800">Interactive Dashboard</h3>
+    <button class="btn btn-ghost btn-sm" data-action="widgetPalette" title="Show / hide widgets">
+      <i class="bi bi-ui-checks"></i> Widgets
+    </button>
+    <button class="btn btn-ghost btn-sm" data-action="resetLayout" title="Reset dashboard layout">
+      <i class="bi bi-arrow-counterclockwise"></i> Reset
+    </button>
+  </div>
+  <button class="btn btn-primary" id="runAnalysisBtn" style="display:none">
+    <i class="bi bi-play-fill"></i> Run Analysis
+  </button>
+</div>
+
+<div class="dash-grid" id="widgetGrid">
+  <!-- Revenue overview -->
+  <div class="widget g-8" data-widget="revenue">
+    <div class="widget-header" draggable="true">
+      <div class="wh-icon"><i class="bi bi-bar-chart-fill"></i></div>
+      <h3>Revenue Overview</h3>
+      <div class="seg-control" id="revMode" style="pointer-events:auto">
+        <button data-mode="daily" class="active">Daily</button>
+        <button data-mode="weekly">Weekly</button>
+        <button data-mode="monthly">Monthly</button>
+      </div>
+      <div class="widget-actions">
+        <button class="icon-btn widget-hide" style="width:30px;height:30px" title="Hide widget"><i class="bi bi-eye-slash"></i></button>
+      </div>
+    </div>
+    <div class="widget-body"><div class="chart-box"><canvas id="revChart"></canvas><div class="skeleton-card chart-skeleton"></div></div></div>
+  </div>
+
+  <!-- Top products -->
+  <div class="widget g-4" data-widget="topProducts">
+    <div class="widget-header" draggable="true">
+      <div class="wh-icon"><i class="bi bi-trophy-fill"></i></div>
+      <h3>Top Products</h3>
+      <div class="seg-control" id="topMode" style="pointer-events:auto">
+        <button data-mode="revenue" class="active">₹</button>
+        <button data-mode="quantity">Qty</button>
+        <button data-mode="transactions">Txns</button>
+      </div>
+      <div class="widget-actions">
+        <button class="icon-btn widget-hide" style="width:30px;height:30px" title="Hide widget"><i class="bi bi-eye-slash"></i></button>
+      </div>
+    </div>
+    <div class="widget-body"><div class="chart-box"><canvas id="topProdsChart"></canvas><div class="skeleton-card chart-skeleton"></div></div></div>
+  </div>
+
+  <!-- Categories -->
+  <div class="widget g-4" data-widget="categories">
+    <div class="widget-header" draggable="true">
+      <div class="wh-icon"><i class="bi bi-pie-chart-fill"></i></div>
+      <h3>Category Distribution</h3>
+      <div class="widget-actions">
+        <button class="icon-btn widget-hide" style="width:30px;height:30px" title="Hide widget"><i class="bi bi-eye-slash"></i></button>
+      </div>
+    </div>
+    <div class="widget-body"><div class="chart-box"><canvas id="catChart"></canvas><div class="skeleton-card chart-skeleton"></div></div></div>
+  </div>
+
+  <!-- Customer activity -->
+  <div class="widget g-8" data-widget="activity">
+    <div class="widget-header" draggable="true">
+      <div class="wh-icon"><i class="bi bi-graph-up-arrow"></i></div>
+      <h3>Customer Activity</h3>
+      <span class="badge badge-primary" id="activityScope"><i class="bi bi-hash"></i> transactions / month</span>
+      <div class="widget-actions">
+        <button class="icon-btn widget-hide" style="width:30px;height:30px" title="Hide widget"><i class="bi bi-eye-slash"></i></button>
+      </div>
+    </div>
+    <div class="widget-body"><div class="chart-box"><canvas id="activityChart"></canvas><div class="skeleton-card chart-skeleton"></div></div></div>
+  </div>
+
+  <!-- Basket insights -->
+  <div class="widget g-8" data-widget="basket">
+    <div class="widget-header" draggable="true">
+      <div class="wh-icon"><i class="bi bi-link-45deg"></i></div>
+      <h3>Strongest Associations</h3>
+      <a href="/basket-analysis" class="text-small">Open analysis <i class="bi bi-arrow-right"></i></a>
+      <div class="widget-actions">
+        <button class="icon-btn widget-hide" style="width:30px;height:30px" title="Hide widget"><i class="bi bi-eye-slash"></i></button>
+      </div>
+    </div>
+    <div class="widget-body" id="strongRulesList"><div class="skeleton-card chart-skeleton"></div></div>
+  </div>
+
+  <!-- Combos -->
+  <div class="widget g-4" data-widget="combos">
+    <div class="widget-header" draggable="true">
+      <div class="wh-icon"><i class="bi bi-gift-fill"></i></div>
+      <h3>Recommended Combos</h3>
+      <a href="/combos" class="text-small">All combos <i class="bi bi-arrow-right"></i></a>
+      <div class="widget-actions">
+        <button class="icon-btn widget-hide" style="width:30px;height:30px" title="Hide widget"><i class="bi bi-eye-slash"></i></button>
+      </div>
+    </div>
+    <div class="widget-body" id="comboPreview"><div class="skeleton-card chart-skeleton"></div></div>
+  </div>
+
+  <!-- Key insights -->
+  <div class="widget g-4" data-widget="insights">
+    <div class="widget-header" draggable="true">
+      <div class="wh-icon"><i class="bi bi-lightbulb-fill"></i></div>
+      <h3>Key Insights</h3>
+      <span class="badge badge-accent"><i class="bi bi-stars"></i> auto</span>
+      <div class="widget-actions">
+        <button class="icon-btn widget-hide" style="width:30px;height:30px" title="Hide widget"><i class="bi bi-eye-slash"></i></button>
+      </div>
+    </div>
+    <div class="widget-body" id="insightsList"><div class="skeleton-card chart-skeleton"></div></div>
+  </div>
+
+  <!-- Recent transactions -->
+  <div class="widget g-8" data-widget="recent">
+    <div class="widget-header" draggable="true">
+      <div class="wh-icon"><i class="bi bi-receipt"></i></div>
+      <h3>Recent Transactions</h3>
+      <a href="/analytics" class="text-small">Full analytics <i class="bi bi-arrow-right"></i></a>
+      <div class="widget-actions">
+        <button class="icon-btn widget-hide" style="width:30px;height:30px" title="Hide widget"><i class="bi bi-eye-slash"></i></button>
+      </div>
+    </div>
+    <div class="widget-body" id="recentTxs"><div class="skeleton-card chart-skeleton"></div></div>
+  </div>
+</div>
+
+<!-- Empty state -->
+<div class="card" id="dashEmpty" style="display:none">
+  <div class="card-body">
+    <div class="empty-state">
+      <div class="empty-icon">📊</div>
+      <h3>No analysis available yet</h3>
+      <p>Upload a retail dataset to discover hidden purchasing patterns, or load the bundled sample data to see the demo instantly.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+        <button class="btn btn-primary" data-action="goUpload"><i class="bi bi-cloud-arrow-up"></i> Upload Dataset</button>
+        <button class="btn btn-outline" id="loadSampleBtn"><i class="bi bi-file-earmark-arrow-down"></i> Load Sample Data</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ static_v('js/dashboard.js') }}"></script>
+{% endblock %}
