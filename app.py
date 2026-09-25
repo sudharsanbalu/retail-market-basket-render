@@ -41,12 +41,22 @@ STATIC_DIR = os.path.join(BASE_DIR, "static")
 
 # Render: mount a persistent disk and point DATA_DIR at it so the
 # uploaded datasets + SQLite database survive restarts / redeploys.
+# If DATA_DIR is not writable (e.g. no disk mounted yet), fall back to
+# the project folder so the app always boots.
 DATA_DIR = os.environ.get("DATA_DIR") or BASE_DIR
-UPLOAD_DIR = os.path.join(DATA_DIR, "uploads")
 SAMPLE_CSV = os.path.join(BASE_DIR, "data", "sample_retail_data.csv")
-DB_PATH = os.path.join(DATA_DIR, "database.db")
 
-os.makedirs(UPLOAD_DIR, exist_ok=True)
+try:
+    os.makedirs(os.path.join(DATA_DIR, "uploads"), exist_ok=True)
+    UPLOAD_DIR = os.path.join(DATA_DIR, "uploads")
+    DB_PATH = os.path.join(DATA_DIR, "database.db")
+except (OSError, PermissionError):
+    print(f"[startup] WARNING: DATA_DIR '{DATA_DIR}' is not writable. "
+          f"Falling back to '{BASE_DIR}' (data will NOT persist across restarts).")
+    DATA_DIR = BASE_DIR
+    UPLOAD_DIR = os.path.join(BASE_DIR, "uploads")
+    DB_PATH = os.path.join(BASE_DIR, "database.db")
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024  # max upload 50 MB
